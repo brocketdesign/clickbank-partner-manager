@@ -1,0 +1,1 @@
+# clickbank-partner-manager
