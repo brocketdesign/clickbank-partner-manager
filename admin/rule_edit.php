@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Insert
             $stmt = $conn->prepare("INSERT INTO redirect_rules (rule_name, rule_type, domain_id, partner_id, offer_id, priority, is_paused) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssiiiih", $rule_name, $rule_type, $domain_id, $partner_id, $offer_id, $priority, $is_paused);
+            $stmt->bind_param("ssiiiii", $rule_name, $rule_type, $domain_id, $partner_id, $offer_id, $priority, $is_paused);
             $stmt->execute();
             $stmt->close();
             header('Location: rules.php?msg=added');
