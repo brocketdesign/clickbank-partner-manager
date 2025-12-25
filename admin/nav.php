@@ -12,6 +12,7 @@
             <a href="offers.php">Offers</a>
             <a href="rules.php">Redirect Rules</a>
             <a href="clicks.php">Click Logs</a>
+            <a href="email_test.php">Email Test</a>
             <a href="logout.php">Logout</a>
         </div>
     </div>

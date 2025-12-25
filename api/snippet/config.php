@@ -2,12 +2,31 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../config.php';
 
+// CORS: echo Origin and allow credentials for cross-origin fetches from publisher sites
+$origin = '';
+if (!empty($_SERVER['HTTP_ORIGIN'])) {
+    $origin = $_SERVER['HTTP_ORIGIN'];
+} elseif (!empty($_SERVER['HTTP_REFERER'])) {
+    $origin = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_SCHEME) . '://' . parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+}
+if ($origin) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
+    header('Vary: Origin');
+}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Accept');
+    http_response_code(204);
+    exit;
+}
+
 // GET /api/snippet/config?partner=PARTNER_ID
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
-}
+} 
 
 $partner_pub = $_GET['partner'] ?? '';
 if (!$partner_pub) {
@@ -38,9 +57,14 @@ if (!empty($_SERVER['HTTP_ORIGIN'])) {
 }
 
 $allowed = false;
-if ($origin) {
+$allowed_domains = array_map('trim', explode(',', $partner['allowed_domains'] ?? ''));
+// If no allowed domains configured for this partner, allow any origin (useful for distributed snippet usage)
+$all_empty = true;
+foreach ($allowed_domains as $d) { if ($d !== '') { $all_empty = false; break; } }
+if ($all_empty) {
+    $allowed = true;
+} elseif ($origin) {
     $origin_host = parse_url($origin, PHP_URL_HOST);
-    $allowed_domains = array_map('trim', explode(',', $partner['allowed_domains'] ?? ''));
     foreach ($allowed_domains as $d) {
         if ($d === '') continue;
         // Allow exact host or www variants
@@ -48,7 +72,7 @@ if ($origin) {
             $allowed = true; break;
         }
     }
-}
+} 
 
 if (!$allowed) {
     http_response_code(403);

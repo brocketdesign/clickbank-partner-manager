@@ -2,6 +2,24 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../config.php';
 
+// CORS: echo Origin and allow credentials for cross-origin POSTs from snippet embeds
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (empty($origin) && !empty($_SERVER['HTTP_REFERER'])) {
+    $ref = $_SERVER['HTTP_REFERER'];
+    $origin = parse_url($ref, PHP_URL_SCHEME) . '://' . parse_url($ref, PHP_URL_HOST);
+}
+if ($origin) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
+    header('Vary: Origin');
+}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Accept');
+    http_response_code(204);
+    exit;
+}
+
 // POST /api/metrics/impression
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
