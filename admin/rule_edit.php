@@ -97,20 +97,7 @@ $page_title = $id > 0 ? 'Edit Rule' : 'Add Rule';
 include 'header.php';
 ?>
 
-<div class="nav">
-    <div class="nav-content">
-        <h1>ClickBank Partner Manager</h1>
-        <div class="nav-links">
-            <a href="index.php">Dashboard</a>
-            <a href="domains.php">Domains</a>
-            <a href="partners.php">Partners</a>
-            <a href="offers.php">Offers</a>
-            <a href="rules.php" class="active">Redirect Rules</a>
-            <a href="clicks.php">Click Logs</a>
-            <a href="logout.php">Logout</a>
-        </div>
-    </div>
-</div>
+<?php include 'nav.php'; ?>
 
 <div class="container">
     <div class="card">

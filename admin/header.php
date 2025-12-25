@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>ClickBank Partner Manager</title>
+    <link rel="icon" href="/favicon_io/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon_io/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+    <link rel="manifest" href="/favicon_io/site.webmanifest" />
     <style>
         * {
             margin: 0;

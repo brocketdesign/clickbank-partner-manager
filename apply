@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Opening AdeasyNow application</title>
+  <link rel="icon" href="/favicon_io/favicon.ico" />
+  <link rel="shortcut icon" href="/favicon_io/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon_io/site.webmanifest" />
+  <style>
+    :root{--bg:#f7fafc;--accent:#2563eb;--muted:#6b7280}
+    html,body{height:100%;margin:0}
+    body{font-family:Inter,Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%),radial-gradient(circle at 20% 80%, rgba(120,119,198,0.06) 0%, transparent 50%);color:#0f172a}
+    .box{max-width:720px;padding:36px;border-radius:16px;background:rgba(255,255,255,0.6);box-shadow:0 8px 30px rgba(16,24,40,0.06);text-align:center}
+    .muted{color:var(--muted)}
+    .spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.08);border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="box" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <h2 style="margin:0 0 8px">Opening AdeasyNow application</h2>
+    <p class="muted" style="margin:0 0 12px">You're being redirected to the AdeasyNow application form.</p>
+    <p class="muted" style="font-size:13px;margin:0">If the redirect doesn't happen, <a href="/apply.php">click here</a>.</p>
+  </div>
+  <script>
+    // Use a short timeout to allow this page to render with the correct background before redirecting.
+    setTimeout(function(){
+      window.location.replace('/apply.php');
+    }, 250);
+  </script>
+</body>
+</html>
