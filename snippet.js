@@ -1,38 +1,29 @@
 (function(){
-  // Lightweight snippet for partner ads
+  // Lightweight snippet for partner ads (simplified)
   var script = document.currentScript || (function(){var s = document.getElementsByTagName('script'); return s[s.length-1];})();
   if(!script) return;
 
   var partner = script.getAttribute('data-partner');
   if (!partner) return;
 
-  // Simple CMP check: attempt to call __tcfapi if available to determine consent
+  // CMP check (keeps previous behavior but simpler)
   function hasConsent(cb) {
     if (typeof window.__tcfapi === 'function') {
       try {
-        window.__tcfapi('getTCData', 2, function(tcData, success){
-          try {
-            var purposes = tcData && tcData.purpose && tcData.purpose.consents;
-            // require purpose 1 (storage) consent for personalized ads
-            var consent = purposes && purposes[1];
-            cb(!!consent);
-          } catch(e){ cb(false); }
+        window.__tcfapi('getTCData', 2, function(tcData){
+          var purposes = (tcData && tcData.purpose && tcData.purpose.consents) || {};
+          cb(!!purposes[1]);
         });
       } catch(e) { cb(false); }
-    } else {
-      // No CMP - treat as non-personal allowed
-      cb(false);
-    }
+    } else cb(false);
   }
 
-  function fetchConfig(cb) {
-    var url = 'https://adeasynow.com/api/snippet/config?partner=' + encodeURIComponent(partner);
-    fetch(url, {method:'GET', credentials:'include', headers:{'Accept':'application/json'}})
-      .then(function(res){
-        if (!res.ok) throw new Error('config fetch failed');
-        return res.json();
-      }).then(function(json){ cb(null, json); })
-      .catch(function(err){ cb(err); });
+  // Fetch config (omit credentials to avoid cookie/CORS preflight issues)
+  async function fetchConfig() {
+    var url = 'https://adeasynow.com/api/snippet/config.php?partner=' + encodeURIComponent(partner);
+    var res = await fetch(url, {method:'GET', credentials:'omit', headers:{'Accept':'application/json'}});
+    if (!res.ok) throw new Error('config fetch failed');
+    return res.json();
   }
 
   function chooseCreative(creatives) {
@@ -49,11 +40,13 @@
 
   function postImpression(creative_id){
     try{
-      fetch('https://adeasynow.com/api/metrics/impression', {
-        method: 'POST',
-        credentials: 'include',
-        body: new URLSearchParams({partner: partner, creative_id: creative_id})
-      }).catch(function(){});
+      var url = 'https://adeasynow.com/api/metrics/impression.php';
+      var payload = new URLSearchParams({partner: partner, creative_id: creative_id});
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, payload);
+      } else {
+        fetch(url, {method:'POST', credentials:'omit', body: payload}).catch(function(){});
+      }
     } catch(e){}
   }
 
@@ -62,12 +55,8 @@
       var el = e.target;
       while (el && el !== container) {
         if (el.tagName && el.tagName.toLowerCase() === 'a') {
-          var href = el.getAttribute('href');
-          // Replace with redirect to adeasynow to preserve attribution
-          var r = 'https://adeasynow.com/r?aff_id=' + encodeURIComponent(partner) + '&c=' + encodeURIComponent(creative.id);
-          // Optionally include return param
-          // Navigate to our short redirect which logs and forwards to hoplink
           e.preventDefault();
+          var r = 'https://adeasynow.com/r?aff_id=' + encodeURIComponent(partner) + '&c=' + encodeURIComponent(creative.id);
           window.location.href = r;
           return;
         }
@@ -78,49 +67,47 @@
 
   // Main flow
   hasConsent(function(personal){
-    // personal = true if consent to personalized ads
-    fetchConfig(function(err, data){
-      if (err || !data || !data.success) return;
-      var cfg = data.config || {};
-      var creatives = cfg.creatives || [];
-      var creative = chooseCreative(creatives);
-      if (!creative) return;
+    (async function(){
+      try {
+        var data = await fetchConfig();
+        if (!data || !data.success) return;
+        var cfg = data.config || {};
+        var creatives = cfg.creatives || [];
+        var creative = chooseCreative(creatives);
+        if (!creative) return;
 
-      // Render into selectors
-      var selectors = cfg.selectors || ['body'];
-      selectors.forEach(function(sel){
-        try{
-          var nodes = document.querySelectorAll(sel);
-          if (!nodes || nodes.length === 0) return;
-          var node = nodes[0];
-          var wrapper = document.createElement('div');
-          wrapper.className = 'cb-snippet cb-creative-' + creative.id;
-          wrapper.innerHTML = creative.html || ('<a href="' + (creative.destination_hoplink||'#') + '" target="_blank">Visit</a>');
-          // Rewrite anchors so they always point to AdeasyNow redirect (works when snippet is embedded on any domain)
-          (function(){
-            var anchors = wrapper.getElementsByTagName('a');
-            for (var j=0;j<anchors.length;j++){
-              try {
-                var a = anchors[j];
-                var orig = a.href; // resolved absolute URL by browser
-                if (!orig) continue;
-                var r = 'https://adeasynow.com/r?aff_id=' + encodeURIComponent(partner) + '&c=' + encodeURIComponent(creative.id) + '&u=' + encodeURIComponent(orig);
-                a.setAttribute('href', r);
-                // Ensure it opens in a new tab and is safe
-                if (!a.getAttribute('target')) a.setAttribute('target','_blank');
-                var rel = a.getAttribute('rel') || '';
-                if (rel.indexOf('noopener') === -1) rel = rel ? rel + ' noopener' : 'noopener';
-                a.setAttribute('rel', rel.trim());
-              } catch(e){}
-            }
-          })();
-          node.appendChild(wrapper);
-          // Track impression
-          postImpression(creative.id);
-          // Attach click handler to reroute clicks to /r
-          attachClickHandler(wrapper, creative);
-        }catch(e){}
-      });
-    });
+        var selectors = cfg.selectors || ['body'];
+        selectors.forEach(function(sel){
+          try{
+            var nodes = document.querySelectorAll(sel);
+            if (!nodes || nodes.length === 0) return;
+            var node = nodes[0];
+            var wrapper = document.createElement('div');
+            wrapper.className = 'cb-snippet cb-creative-' + creative.id;
+            wrapper.innerHTML = creative.html || ('<a href="' + (creative.destination_hoplink||'#') + '" target="_blank">Visit</a>');
+            // Rewrite anchors to use redirect and safe attributes
+            (function(){
+              var anchors = wrapper.getElementsByTagName('a');
+              for (var j=0;j<anchors.length;j++){
+                try {
+                  var a = anchors[j];
+                  var orig = a.href;
+                  if (!orig) continue;
+                  var r = 'https://adeasynow.com/r?aff_id=' + encodeURIComponent(partner) + '&c=' + encodeURIComponent(creative.id) + '&u=' + encodeURIComponent(orig);
+                  a.setAttribute('href', r);
+                  if (!a.getAttribute('target')) a.setAttribute('target','_blank');
+                  var rel = a.getAttribute('rel') || '';
+                  if (rel.indexOf('noopener') === -1) rel = rel ? rel + ' noopener' : 'noopener';
+                  a.setAttribute('rel', rel.trim());
+                } catch(e){}
+              }
+            })();
+            node.appendChild(wrapper);
+            postImpression(creative.id);
+            attachClickHandler(wrapper, creative);
+          }catch(e){}
+        });
+      } catch(e) {}
+    })();
   });
 })();

@@ -19,13 +19,9 @@ server {
     error_log /var/log/nginx/clickbank-error.log;
     
     # Main location - route non-admin traffic to index.php
+    # Auto-check for .php extension before falling back to index.php
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    # Make /apply act like /apply.php for friendly URLs
-    location = /apply {
-        try_files /apply.php =404;
+        try_files $uri $uri/ $uri.php /index.php?$query_string;
     }
     
     # Admin panel - serve PHP files directly

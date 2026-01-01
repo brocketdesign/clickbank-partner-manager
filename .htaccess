@@ -8,6 +8,12 @@
     # Serve snippet.js via PHP endpoint so it's reachable even if static serving differs
     RewriteRule ^snippet\.js$ snippet.php [L]
 
+    # Auto-add .php extension if the .php file exists
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.*)$ $1.php [L]
+
     # Redirect all non-admin traffic to index.php (except actual files)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

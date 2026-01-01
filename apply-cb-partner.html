@@ -95,6 +95,16 @@
       <button class="btn" type="submit" style="margin-top:8px"><i class="fas fa-paper-plane" style="margin-right:8px"></i>Submit application</button>
     </form>
     <div id="formMsg" class="muted" style="margin-top:12px;font-size:13px;text-align:center"></div>
+    
+    <!-- Success Container (shown after successful submission) -->
+    <div id="successContainer" style="display:none;text-align:center;padding:40px 20px;max-width:500px;margin:0 auto;">
+      <div style="width:80px;height:80px;background:linear-gradient(135deg,#10b981 0%,#059669 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 20px rgba(16,185,129,0.3);">
+        <i class="fas fa-check" style="font-size:36px;color:#fff;"></i>
+      </div>
+      <h2 style="color:#10b981;margin-bottom:16px;">Application Submitted!</h2>
+      <p style="color:#6b7280;line-height:1.6;margin-bottom:24px;">Thank you for applying to AdeasyNow! We've sent a confirmation email to your inbox. Our team will review your application and get back to you within 3-5 business days.</p>
+      <p style="color:#9ca3af;font-size:13px;"><i class="fas fa-envelope" style="margin-right:6px;"></i>Check your email for confirmation details</p>
+    </div>
   </div>
 
   <script>
@@ -161,17 +171,11 @@
             return;
           }
 
-          msg.style.color = 'var(--success)';
-          msg.textContent = data.message || 'Application submitted.';
+          // Hide form and show success container
+          form.style.display = 'none';
+          msg.style.display = 'none';
+          document.getElementById('successContainer').style.display = 'block';
           form.reset();
-          // regenerate captcha
-          const a = Math.floor(Math.random()*8) + 1;
-          const b = Math.floor(Math.random()*8) + 1;
-          document.getElementById('captcha_a').value = a;
-          document.getElementById('captcha_b').value = b;
-          document.getElementById('captchaQuestion').innerText = a + ' + ' + b + ' = ?';
-          btn.disabled = false;
-          btn.innerHTML = originalText;
         } catch (err) {
           msg.style.color = '#ef4444';
           msg.textContent = 'Network error. Please try again.';

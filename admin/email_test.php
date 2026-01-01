@@ -25,28 +25,261 @@ $preview_html = '';
 $preview_subject = '';
 
 function build_email($key, $data) {
+    $name = htmlspecialchars($data['name']);
+    $email = htmlspecialchars($data['email']);
+    $blog_url = htmlspecialchars($data['blog_url']);
+    $message = nl2br(htmlspecialchars($data['message']));
+    $submitted_date = date('Y-m-d H:i:s');
+    
     switch ($key) {
         case 'applicant_confirmation':
             $subject = 'We Received Your AdeasyNow Application';
-            $body = "<html><body><h2>Application Received</h2><p>Hi " . htmlspecialchars($data['name']) . ",</p><p>Thank you for applying to AdeasyNow! We have received your application and our team will review it shortly. Minimum payout is $25.</p><p><strong>What happens next?</strong><br>Our team will verify your domain and business information, then get back to you within 3-5 business days with either an approval, a request for more information, or further details.</p><p><strong>Application Summary:</strong><br><em>Submitted URL:</em> " . htmlspecialchars($data['blog_url']) . "<br><em>Submitted on:</em> " . date('Y-m-d H:i:s') . "</p><p>If you have any questions, please don't hesitate to reach out.</p><p>Best regards,<br>The AdeasyNow Team</p></body></html>";
+            $body = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f7fafc;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f7fafc;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:40px;text-align:center;">
+                            <div style="width:70px;height:70px;background:rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 16px;line-height:70px;font-size:32px;">✓</div>
+                            <h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:600;">Application Received!</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <p style="color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi <strong>{$name}</strong>,</p>
+                            <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">Thank you for applying to AdeasyNow! We've received your application and our team will review it shortly.</p>
+                            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(5,150,105,0.08) 100%);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:20px;margin:24px 0;">
+                                <h3 style="color:#059669;margin:0 0 12px;font-size:15px;">💰 Minimum Payout: \$25</h3>
+                                <p style="color:#475569;margin:0;font-size:14px;line-height:1.6;">Start earning from day one with our competitive commission structure!</p>
+                            </div>
+                            <h3 style="color:#1e293b;font-size:16px;margin:28px 0 16px;">📋 What happens next?</h3>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border-radius:12px;">
+                                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="width:32px;vertical-align:top;"><span style="display:inline-block;background:#10b981;color:#fff;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:bold;">1</span></td><td style="color:#475569;font-size:14px;padding-left:8px;">We verify your domain and business information</td></tr></table></td></tr>
+                                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="width:32px;vertical-align:top;"><span style="display:inline-block;background:#10b981;color:#fff;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:bold;">2</span></td><td style="color:#475569;font-size:14px;padding-left:8px;">Our team reviews your application (3-5 business days)</td></tr></table></td></tr>
+                                <tr><td style="padding:16px 20px;"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td style="width:32px;vertical-align:top;"><span style="display:inline-block;background:#10b981;color:#fff;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:bold;">3</span></td><td style="color:#475569;font-size:14px;padding-left:8px;">You'll receive approval or further instructions via email</td></tr></table></td></tr>
+                            </table>
+                            <h3 style="color:#1e293b;font-size:16px;margin:28px 0 16px;">📝 Application Summary</h3>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border-radius:12px;">
+                                <tr><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px;width:40%;">Submitted URL</td><td style="padding:14px 20px;border-bottom:1px solid #e2e8f0;color:#10b981;font-weight:500;">{$blog_url}</td></tr>
+                                <tr><td style="padding:14px 20px;color:#64748b;font-size:13px;">Submitted On</td><td style="padding:14px 20px;color:#1e293b;">{$submitted_date}</td></tr>
+                            </table>
+                            <p style="color:#475569;font-size:14px;line-height:1.6;margin:28px 0 0;">If you have any questions, feel free to reply to this email.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                            <p style="color:#1e293b;font-weight:600;margin:0 0 4px;font-size:14px;">The AdeasyNow Team</p>
+                            <p style="color:#94a3b8;font-size:12px;margin:0;">Empowering partners to succeed</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
             return ['subject' => $subject, 'body' => $body];
         case 'admin_notification':
             $subject = 'New AdeasyNow Application Received';
-            $body = "<html><body><h2>New AdeasyNow Application</h2><p>A new AdeasyNow application has been submitted for review:</p><table style=\"border-collapse:collapse;width:100%;\"><tr><td style=\"padding:8px;\"><strong>Name:</strong></td><td style=\"padding:8px;\">" . htmlspecialchars($data['name']) . "</td></tr><tr><td style=\"padding:8px;\"><strong>Email:</strong></td><td style=\"padding:8px;\">" . htmlspecialchars($data['email']) . "</td></tr><tr><td style=\"padding:8px;\"><strong>Blog/URL:</strong></td><td style=\"padding:8px;\">" . htmlspecialchars($data['blog_url']) . "</td></tr><tr><td style=\"padding:8px;\"><strong>Notes:</strong></td><td style=\"padding:8px;\">" . nl2br(htmlspecialchars($data['message'])) . "</td></tr></table></body></html>";
+            $body = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f7fafc;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f7fafc;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:32px 40px;text-align:center;">
+                            <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:600;">📋 New Application</h1>
+                            <p style="color:rgba(255,255,255,0.9);margin:8px 0 0;font-size:14px;">A new partner application requires your review</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:32px 40px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border-radius:12px;overflow:hidden;">
+                                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong style="color:#64748b;font-size:13px;">NAME</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;color:#1e293b;font-weight:500;">{$name}</td></tr>
+                                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong style="color:#64748b;font-size:13px;">EMAIL</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;color:#1e293b;">{$email}</td></tr>
+                                <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><strong style="color:#64748b;font-size:13px;">BLOG/URL</strong></td><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;"><a href="{$blog_url}" target="_blank" style="color:#10b981;text-decoration:none;">{$blog_url}</a></td></tr>
+                                <tr><td style="padding:16px 20px;"><strong style="color:#64748b;font-size:13px;">NOTES</strong></td><td style="padding:16px 20px;color:#1e293b;">{$message}</td></tr>
+                            </table>
+                            <div style="text-align:center;margin-top:32px;">
+                                <a href="https://adeasynow.com/admin/applications" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:14px;box-shadow:0 4px 14px rgba(16,185,129,0.4);">Review Application →</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                            <p style="color:#94a3b8;font-size:12px;margin:0;">This is an automated notification from AdeasyNow Partner System</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
             return ['subject' => $subject, 'body' => $body];
         case 'approve':
             $public_id = bin2hex(random_bytes(8));
             $subject = 'Your partner application has been approved';
             $snippet = htmlspecialchars('<script src="https://adeasynow.com/snippet.js" data-partner="' . $public_id . '" async></script>');
-            $body = "<html><body><p>Hi " . htmlspecialchars($data['name']) . ",</p><p>Your application has been approved. Below is your snippet (use on your site):</p><pre style=\"background:#f8f9fa;padding:10px;border-radius:4px\">{$snippet}</pre><p>Keep your partner id safe. If you need any help, reply to this email.</p></body></html>";
+            $body = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f7fafc;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f7fafc;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:40px;text-align:center;">
+                            <div style="width:70px;height:70px;background:rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 16px;line-height:70px;font-size:32px;">🎉</div>
+                            <h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:600;">You're Approved!</h1>
+                            <p style="color:rgba(255,255,255,0.9);margin:12px 0 0;font-size:15px;">Welcome to the AdeasyNow Partner Program</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <p style="color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi <strong>{$name}</strong>,</p>
+                            <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">Great news! Your application has been approved. You can now start earning commissions by adding the snippet below to your website.</p>
+                            <div style="background:#f8fafc;border-radius:12px;padding:24px;margin:24px 0;">
+                                <h3 style="color:#1e293b;margin:0 0 16px;font-size:14px;">📋 Your Integration Snippet</h3>
+                                <div style="background:#1e293b;border-radius:8px;padding:16px;overflow-x:auto;">
+                                    <code style="color:#10b981;font-family:Monaco,Consolas,monospace;font-size:13px;white-space:pre-wrap;word-break:break-all;">{$snippet}</code>
+                                </div>
+                                <p style="color:#64748b;font-size:12px;margin:12px 0 0;">Add this code just before the closing &lt;/body&gt; tag on your website.</p>
+                            </div>
+                            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(5,150,105,0.08) 100%);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:16px 20px;margin:24px 0;">
+                                <p style="color:#059669;margin:0;font-size:14px;">🔒 <strong>Keep your partner ID safe!</strong> This unique identifier is tied to your account and earnings.</p>
+                            </div>
+                            <p style="color:#475569;font-size:14px;line-height:1.6;margin:24px 0 0;">Need help with integration? Simply reply to this email and our team will assist you.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                            <p style="color:#1e293b;font-weight:600;margin:0 0 4px;font-size:14px;">The AdeasyNow Team</p>
+                            <p style="color:#94a3b8;font-size:12px;margin:0;">Empowering partners to succeed</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
             return ['subject' => $subject, 'body' => $body];
         case 'request_info':
             $subject = 'More information requested about your application';
-            $body = "<html><body><p>Hi " . htmlspecialchars($data['name']) . ",</p><p>We need more information to process your application:</p><blockquote>" . nl2br(htmlspecialchars($data['message'])) . "</blockquote><p>Please reply with the requested details.</p></body></html>";
+            $body = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f7fafc;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f7fafc;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);padding:40px;text-align:center;">
+                            <div style="width:70px;height:70px;background:rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 16px;line-height:70px;font-size:32px;">📝</div>
+                            <h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:600;">Additional Info Needed</h1>
+                            <p style="color:rgba(255,255,255,0.9);margin:12px 0 0;font-size:15px;">We need a bit more information to continue</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <p style="color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi <strong>{$name}</strong>,</p>
+                            <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">Thank you for your interest in joining AdeasyNow! To process your application, we need some additional information:</p>
+                            <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:24px;margin:24px 0;">
+                                <p style="color:#92400e;margin:0;font-size:15px;line-height:1.7;">{$message}</p>
+                            </div>
+                            <p style="color:#475569;font-size:14px;line-height:1.6;margin:24px 0 0;">Please reply to this email with the requested details, and we'll continue processing your application right away.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                            <p style="color:#1e293b;font-weight:600;margin:0 0 4px;font-size:14px;">The AdeasyNow Team</p>
+                            <p style="color:#94a3b8;font-size:12px;margin:0;">We're here to help</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
             return ['subject' => $subject, 'body' => $body];
         case 'reject':
             $subject = 'Your partner application has been rejected';
-            $body = "<html><body><p>Hi " . htmlspecialchars($data['name']) . ",</p><p>We are sorry to inform you that your application has been rejected for the following reason:</p><blockquote>" . nl2br(htmlspecialchars($data['message'])) . "</blockquote><p>If you believe this is a mistake, you may reply to this email.</p></body></html>";
+            $body = <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f7fafc;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f7fafc;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#64748b 0%,#475569 100%);padding:40px;text-align:center;">
+                            <div style="width:70px;height:70px;background:rgba(255,255,255,0.2);border-radius:50%;margin:0 auto 16px;line-height:70px;font-size:32px;">📋</div>
+                            <h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:600;">Application Update</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:40px;">
+                            <p style="color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi <strong>{$name}</strong>,</p>
+                            <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">Thank you for your interest in the AdeasyNow Partner Program. After reviewing your application, we regret to inform you that we are unable to approve it at this time.</p>
+                            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:24px;margin:24px 0;">
+                                <h4 style="color:#991b1b;margin:0 0 12px;font-size:14px;">Reason:</h4>
+                                <p style="color:#7f1d1d;margin:0;font-size:15px;line-height:1.7;">{$message}</p>
+                            </div>
+                            <p style="color:#475569;font-size:14px;line-height:1.6;margin:24px 0 0;">If you believe this decision was made in error, or if you'd like to provide additional information, please don't hesitate to reply to this email.</p>
+                            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(5,150,105,0.08) 100%);border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:16px 20px;margin:24px 0;">
+                                <p style="color:#059669;margin:0;font-size:14px;">💡 <strong>Tip:</strong> You may reapply after addressing the concerns mentioned above.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                            <p style="color:#1e293b;font-weight:600;margin:0 0 4px;font-size:14px;">The AdeasyNow Team</p>
+                            <p style="color:#94a3b8;font-size:12px;margin:0;">We appreciate your understanding</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
             return ['subject' => $subject, 'body' => $body];
         default:
             $subject = $data['subject'] ?? '';

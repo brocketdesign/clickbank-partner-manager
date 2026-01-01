@@ -68,7 +68,8 @@ server {
     index index.php;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        # Auto-check for .php extension before falling back to index.php
+        try_files $uri $uri/ $uri.php /index.php?$query_string;
     }
 
     location /admin/ {

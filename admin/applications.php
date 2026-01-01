@@ -50,8 +50,24 @@ include 'header.php';
                             <td><?php echo htmlspecialchars($app['name']); ?></td>
                             <td><?php echo htmlspecialchars($app['email']); ?></td>
                             <td><?php echo htmlspecialchars($app['blog_url']); ?></td>
-                            <td><?php echo htmlspecialchars($app['domain_verification_status']); ?></td>
-                            <td><?php echo htmlspecialchars($app['status']); ?></td>
+                            <td>
+                                <?php 
+                                $ver_status = $app['domain_verification_status'];
+                                $ver_class = 'badge-inactive';
+                                if ($ver_status === 'verified') $ver_class = 'badge-active';
+                                elseif ($ver_status === 'pending' || $ver_status === 'unchecked') $ver_class = 'badge-paused';
+                                ?>
+                                <span class="badge <?php echo $ver_class; ?>"><?php echo htmlspecialchars(ucfirst($ver_status)); ?></span>
+                            </td>
+                            <td>
+                                <?php 
+                                $status = $app['status'];
+                                $status_class = 'badge-paused';
+                                if ($status === 'approved') $status_class = 'badge-active';
+                                elseif ($status === 'rejected') $status_class = 'badge-inactive';
+                                ?>
+                                <span class="badge <?php echo $status_class; ?>"><?php echo htmlspecialchars(ucfirst($status)); ?></span>
+                            </td>
                             <td><?php echo date('Y-m-d H:i', strtotime($app['created_at'])); ?></td>
                             <td>
                                 <a href="application_view.php?id=<?php echo $app['id']; ?>" class="btn btn-small">View</a>
