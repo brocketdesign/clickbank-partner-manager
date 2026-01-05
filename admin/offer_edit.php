@@ -27,7 +27,7 @@ if ($id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $offer_name = sanitize($_POST['offer_name'] ?? '');
     $clickbank_vendor = sanitize($_POST['clickbank_vendor'] ?? '');
-    $clickbank_hoplink = trim($_POST['clickbank_hoplink'] ?? '');
+    $clickbank_hoplink = sanitize($_POST['clickbank_hoplink'] ?? '');
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     
     if (empty($offer_name)) {
@@ -63,52 +63,73 @@ include 'header.php';
 
 <?php include 'nav.php'; ?>
 
-<div class="container">
-    <div class="card">
-        <h2><?php echo $id > 0 ? 'Edit Offer' : 'Add New Offer'; ?></h2>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-        
-        <form method="POST">
-            <div class="form-group">
-                <label>Offer Name *</label>
-                <input type="text" name="offer_name" 
-                       value="<?php echo htmlspecialchars($offer['offer_name'] ?? ''); ?>" 
-                       placeholder="My ClickBank Product" required>
+<div class="container animate-fade-in">
+    <div style="max-width: 700px;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px; color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <?php echo $id > 0 ? 'Edit Offer' : 'Add New Offer'; ?>
+                </h2>
             </div>
             
-            <div class="form-group">
-                <label>ClickBank Vendor *</label>
-                <input type="text" name="clickbank_vendor" 
-                       value="<?php echo htmlspecialchars($offer['clickbank_vendor'] ?? ''); ?>" 
-                       placeholder="vendorname" required>
-            </div>
+            <?php if ($error): ?>
+                <div class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
             
-            <div class="form-group">
-                <label>ClickBank Hoplink URL *</label>
-                <input type="url" name="clickbank_hoplink" 
-                       value="<?php echo htmlspecialchars($offer['clickbank_hoplink'] ?? ''); ?>" 
-                       placeholder="https://hop.clickbank.net/?affiliate=YOUR_ID&vendor=vendorname" required>
-                <small style="color: #7f8c8d; display: block; margin-top: 5px;">
-                    Full ClickBank hoplink URL. The system will automatically append tracking parameters.
-                </small>
-            </div>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="is_active" 
-                           <?php echo (!$offer || $offer['is_active']) ? 'checked' : ''; ?>>
-                    Active
-                </label>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success">Save Offer</button>
-                <a href="offers.php" class="btn">Cancel</a>
-            </div>
-        </form>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="offer_name">Offer Name *</label>
+                    <input type="text" id="offer_name" name="offer_name" 
+                           value="<?php echo htmlspecialchars($offer['offer_name'] ?? ''); ?>" 
+                           placeholder="e.g., Weight Loss Guide" required>
+                    <small>A descriptive name for this offer</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clickbank_vendor">ClickBank Vendor *</label>
+                    <input type="text" id="clickbank_vendor" name="clickbank_vendor" 
+                           value="<?php echo htmlspecialchars($offer['clickbank_vendor'] ?? ''); ?>" 
+                           placeholder="e.g., vendorname" required>
+                    <small>The ClickBank vendor/nickname for this product</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clickbank_hoplink">ClickBank Hoplink *</label>
+                    <input type="url" id="clickbank_hoplink" name="clickbank_hoplink" 
+                           value="<?php echo htmlspecialchars($offer['clickbank_hoplink'] ?? ''); ?>" 
+                           placeholder="https://vendor.hop.clickbank.net" required>
+                    <small>The full ClickBank hoplink URL (affiliate ID will be appended)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="is_active" 
+                               style="width: 18px; height: 18px; accent-color: var(--primary);"
+                               <?php echo (!$offer || $offer['is_active']) ? 'checked' : ''; ?>>
+                        <span>Active</span>
+                    </label>
+                    <small>Inactive offers won't be used in redirect rules</small>
+                </div>
+                
+                <div style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-100); margin-top: 8px;">
+                    <button type="submit" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save Offer
+                    </button>
+                    <a href="offers.php" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

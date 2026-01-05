@@ -49,21 +49,31 @@ if (isset($_GET['u'])) {
     }
 }
 
-// If creative id passed (c), try to resolve it directly
+// If creative/offer id passed (c), try to resolve it from offers table
 $creative_id = isset($_GET['c']) ? (int)$_GET['c'] : null;
-if ($creative_id && $partner_id) {
-    $cstmt = $conn->prepare("SELECT destination_hoplink FROM creatives WHERE id = ? AND partner_id = ? AND active = 1 LIMIT 1");
-    $cstmt->bind_param('ii', $creative_id, $partner_id);
-    $crow = stmt_get_assoc($cstmt);
-    if ($crow && !empty($crow['destination_hoplink'])) {
-        // don't override explicit 'u' param if present
-        if (empty($redirect_url)) {
+if ($creative_id && empty($redirect_url)) {
+    // First try creatives table (legacy)
+    if ($partner_id) {
+        $cstmt = $conn->prepare("SELECT destination_hoplink FROM creatives WHERE id = ? AND partner_id = ? AND active = 1 LIMIT 1");
+        $cstmt->bind_param('ii', $creative_id, $partner_id);
+        $crow = stmt_get_assoc($cstmt);
+        if ($crow && !empty($crow['destination_hoplink'])) {
             $redirect_url = $crow['destination_hoplink'];
-            $offer_id = null; // not from offers table
-            $rule_id = null;
         }
+        $cstmt->close();
     }
-    $cstmt->close();
+    
+    // Then try offers table directly (new approach)
+    if (empty($redirect_url)) {
+        $ostmt = $conn->prepare("SELECT clickbank_hoplink FROM offers WHERE id = ? AND is_active = 1 LIMIT 1");
+        $ostmt->bind_param('i', $creative_id);
+        $orow = stmt_get_assoc($ostmt);
+        if ($orow && !empty($orow['clickbank_hoplink'])) {
+            $redirect_url = $orow['clickbank_hoplink'];
+            $offer_id = $creative_id;
+        }
+        $ostmt->close();
+    }
 }
 
 // Step 3: Find matching redirect rule (priority: partner -> domain -> global)
@@ -143,11 +153,33 @@ $ip_hash = $ip_address ? hash('sha256', $ip_address) : null;
 $ua_hash = $user_agent ? hash('sha256', $user_agent) : null;
 
 // Insert into clicks attribution table
-$clickStmt = $conn->prepare("INSERT INTO clicks (partner_id, creative_id, click_id, ip_hash, ua_hash, referrer) VALUES (?, ?, ?, ?, ?, ?)");
-if ($clickStmt) {
-    $clickStmt->bind_param('iissss', $partner_id, $creative_id, $click_id, $ip_hash, $ua_hash, $referer);
-    $clickStmt->execute();
-    $clickStmt->close();
+// Ensure creative_id exists in creatives table before inserting to satisfy FK constraint
+$validCreative = false;
+if ($creative_id) {
+    $checkStmt = $conn->prepare("SELECT id FROM creatives WHERE id = ? LIMIT 1");
+    if ($checkStmt) {
+        $checkStmt->bind_param('i', $creative_id);
+        $row = stmt_get_assoc($checkStmt);
+        if ($row) $validCreative = true;
+        $checkStmt->close();
+    }
+}
+
+if ($validCreative) {
+    $clickStmt = $conn->prepare("INSERT INTO clicks (partner_id, creative_id, click_id, ip_hash, ua_hash, referrer) VALUES (?, ?, ?, ?, ?, ?)");
+    if ($clickStmt) {
+        $clickStmt->bind_param('iissss', $partner_id, $creative_id, $click_id, $ip_hash, $ua_hash, $referer);
+        $clickStmt->execute();
+        $clickStmt->close();
+    }
+} else {
+    // Insert with NULL creative_id to avoid FK errors when using offer IDs
+    $clickStmt = $conn->prepare("INSERT INTO clicks (partner_id, creative_id, click_id, ip_hash, ua_hash, referrer) VALUES (?, NULL, ?, ?, ?, ?)");
+    if ($clickStmt) {
+        $clickStmt->bind_param('issss', $partner_id, $click_id, $ip_hash, $ua_hash, $referer);
+        $clickStmt->execute();
+        $clickStmt->close();
+    }
 }
 
 // Raw logging

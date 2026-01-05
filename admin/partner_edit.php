@@ -64,42 +64,65 @@ include 'header.php';
 
 <?php include 'nav.php'; ?>
 
-<div class="container">
-    <div class="card">
-        <h2><?php echo $id > 0 ? 'Edit Partner' : 'Add New Partner'; ?></h2>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-        
-        <form method="POST">
-            <div class="form-group">
-                <label>Affiliate ID *</label>
-                <input type="text" name="aff_id" 
-                       value="<?php echo htmlspecialchars($partner['aff_id'] ?? ''); ?>" 
-                       placeholder="partner123" required>
+<div class="container animate-fade-in">
+    <div style="max-width: 600px;">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px; color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <?php echo $id > 0 ? 'Edit Partner' : 'Add New Partner'; ?>
+                </h2>
             </div>
             
-            <div class="form-group">
-                <label>Partner Name *</label>
-                <input type="text" name="partner_name" 
-                       value="<?php echo htmlspecialchars($partner['partner_name'] ?? ''); ?>" 
-                       placeholder="Partner Company Name" required>
-            </div>
+            <?php if ($error): ?>
+                <div class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
             
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="is_active" 
-                           <?php echo (!$partner || $partner['is_active']) ? 'checked' : ''; ?>>
-                    Active
-                </label>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-success">Save Partner</button>
-                <a href="partners.php" class="btn">Cancel</a>
-            </div>
-        </form>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="aff_id">Affiliate ID *</label>
+                    <input type="text" id="aff_id" name="aff_id" 
+                           value="<?php echo htmlspecialchars($partner['aff_id'] ?? ''); ?>" 
+                           placeholder="e.g., partner123" required>
+                    <small>This is the unique identifier used in redirect links</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="partner_name">Partner Name *</label>
+                    <input type="text" id="partner_name" name="partner_name" 
+                           value="<?php echo htmlspecialchars($partner['partner_name'] ?? ''); ?>" 
+                           placeholder="e.g., Acme Marketing Inc." required>
+                    <small>Display name for this partner</small>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="is_active" 
+                               style="width: 18px; height: 18px; accent-color: var(--primary);"
+                               <?php echo (!$partner || $partner['is_active']) ? 'checked' : ''; ?>>
+                        <span>Active</span>
+                    </label>
+                    <small>Inactive partners won't receive redirected traffic</small>
+                </div>
+                
+                <div style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid var(--gray-100); margin-top: 8px;">
+                    <button type="submit" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save Partner
+                    </button>
+                    <a href="partners.php" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
