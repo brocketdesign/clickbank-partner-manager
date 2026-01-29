@@ -148,7 +148,8 @@
 
   // API calls
   async function fetchConfig() {
-    const url = `${CONFIG.API_BASE}/api/snippet/config.php?partner=${encodeURIComponent(partner)}`;
+    const domain = window.location.hostname;
+    const url = `${CONFIG.API_BASE}/api/snippet/config.php?partner=${encodeURIComponent(partner)}&domain=${encodeURIComponent(domain)}`;
     const res = await fetch(url, { method: 'GET', credentials: 'omit', headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('Config fetch failed');
     return res.json();

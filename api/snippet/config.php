@@ -22,13 +22,36 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 } 
 
 $partner_pub = $_GET['partner'] ?? '';
+$domain_param = $_GET['domain'] ?? '';
+
 if (!$partner_pub) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing partner id']);
     exit;
 }
 
+if (!$domain_param) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing domain']);
+    exit;
+}
+
 $conn = getDBConnection();
+
+// Check if the domain is active in the domains table
+$domainStmt = $conn->prepare("SELECT id, is_active FROM domains WHERE domain_name = ? LIMIT 1");
+$domainStmt->bind_param('s', $domain_param);
+$domainStmt->execute();
+$domainRow = $domainStmt->get_result()->fetch_assoc();
+$domainStmt->close();
+
+// If domain exists in table but is not active, reject the request
+if ($domainRow && !$domainRow['is_active']) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Domain is deactivated']);
+    exit;
+}
+
 $stmt = $conn->prepare("SELECT * FROM partners_new WHERE partner_id_public = ? AND status = 'approved' LIMIT 1");
 $stmt->bind_param('s', $partner_pub);
 $stmt->execute();
