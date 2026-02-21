@@ -149,7 +149,7 @@
   // API calls
   async function fetchConfig() {
     const domain = window.location.hostname;
-    const url = `${CONFIG.API_BASE}/api/snippet/config.php?partner=${encodeURIComponent(partner)}&domain=${encodeURIComponent(domain)}`;
+    const url = `${CONFIG.API_BASE}/api/snippet/config?partner=${encodeURIComponent(partner)}&domain=${encodeURIComponent(domain)}`;
     const res = await fetch(url, { method: 'GET', credentials: 'omit', headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('Config fetch failed');
     return res.json();
@@ -178,7 +178,7 @@
 
   function postImpression(creativeId) {
     try {
-      const url = `${CONFIG.API_BASE}/api/metrics/impression.php`;
+      const url = `${CONFIG.API_BASE}/api/metrics/impression`;
       const payload = new URLSearchParams({ partner: partner, creative_id: creativeId });
       if (navigator.sendBeacon) {
         navigator.sendBeacon(url, payload);
@@ -191,7 +191,7 @@
   }
 
   function buildRedirectUrl(creative) {
-    return `${CONFIG.API_BASE}/r.php?aff_id=${encodeURIComponent(partner)}&c=${encodeURIComponent(creative.id)}`;
+    return `${CONFIG.API_BASE}/r?aff_id=${encodeURIComponent(partner)}&c=${encodeURIComponent(creative.id)}`;
   }
 
   // Background open - opens current page in background, redirects current to offer

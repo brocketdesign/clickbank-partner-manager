@@ -163,3 +163,14 @@ export interface AdminUser {
   password_hash: string;
   created_at: Date;
 }
+
+// ---- API Keys ----
+export interface ApiKey {
+  _id?: ObjectId;
+  name: string;
+  key_hash: string;       // SHA-256 hex of the raw key
+  key_prefix: string;     // first 8 chars of raw key for display
+  is_active: boolean;
+  last_used_at?: Date;
+  created_at: Date;
+}

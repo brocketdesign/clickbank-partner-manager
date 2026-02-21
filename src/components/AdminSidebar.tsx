@@ -16,6 +16,8 @@ import {
   Menu,
   X,
   ChevronRight,
+  Key,
+  BookOpen,
 } from "lucide-react";
 
 interface NavItem {
@@ -89,6 +91,13 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           href: "/admin/rules",
           icon: GitBranch,
         },
+      ],
+    },
+    {
+      title: "DEVELOPER",
+      items: [
+        { label: "API Keys", href: "/admin/api-keys", icon: Key },
+        { label: "API Docs", href: "/admin/api-docs", icon: BookOpen },
       ],
     },
   ];
