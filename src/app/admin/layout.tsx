@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
 export default async function AdminLayout({
@@ -14,14 +13,14 @@ export default async function AdminLayout({
 
   // Login page: redirect already-authenticated users, otherwise render bare
   if (pathname.startsWith("/admin/login")) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (session) {
       redirect("/admin");
     }
     return <>{children}</>;
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) {
     redirect("/admin/login");

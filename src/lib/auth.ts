@@ -1,12 +1,18 @@
-import type { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { getDb } from "@/lib/mongodb";
+import type { DefaultSession } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+declare module "next-auth" {
+  interface Session {
+    user: { id: string } & DefaultSession["user"];
+  }
+}
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    CredentialsProvider({
-      name: "Admin Login",
+    Credentials({
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
@@ -19,19 +25,19 @@ export const authOptions: NextAuthOptions = {
         const db = await getDb();
         const user = await db
           .collection("admin_users")
-          .findOne({ username: credentials.username });
+          .findOne({ username: credentials.username as string });
 
         if (!user) return null;
 
         const isValid = await compare(
-          credentials.password,
+          credentials.password as string,
           user.password_hash
         );
         if (!isValid) return null;
 
         return {
           id: user._id.toString(),
-          name: user.username,
+          name: user.username as string,
         };
       },
     }),
@@ -52,9 +58,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as Record<string, unknown>).id = token.id;
+        session.user.id = token.id as string;
       }
       return session;
     },
   },
-};
+});
